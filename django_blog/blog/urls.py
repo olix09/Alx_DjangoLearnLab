@@ -1,12 +1,23 @@
 from django.urls import path
 from . import views
 # Tag and Search URLs
+from django.views.generic import ListView
+from .models import Post, Tag
 
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        tag = Tag.objects.get(name=tag_slug)
+        return tag.posts.all()
 urlpatterns = [
     path('', views.index, name='index'),
 path('tags/<str:tag_name>/', views.posts_by_tag, name='posts-by-tag'),
 path('search/', views.search_posts, name='search-posts'),
-
+path('tags/<slug:tag_slug>/', views.PostByTagListView.as_view(), name='posts-by-tag'),
     # Authentication
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
@@ -28,6 +39,7 @@ path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='commen
     path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
 ]
+
 
 
 
