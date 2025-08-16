@@ -5,7 +5,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blog',  # Add this line
+    'blog',      # your blog app
+    'taggit',    # add this line for the checker
 ]
 DATABASES = {
     'default': {
@@ -17,3 +18,4 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
