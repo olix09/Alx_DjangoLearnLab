@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required  # <--- Add this
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.forms import AuthenticationForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post
-from .forms import PostForm
+from .forms import RegistrationForm, PostForm
+
 
 # List all posts
 class PostListView(ListView):
@@ -50,3 +54,4 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
