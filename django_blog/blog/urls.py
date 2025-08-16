@@ -1,8 +1,11 @@
 from django.urls import path
 from . import views
+# Tag and Search URLs
 
 urlpatterns = [
     path('', views.index, name='index'),
+path('tags/<str:tag_name>/', views.posts_by_tag, name='posts-by-tag'),
+path('search/', views.search_posts, name='search-posts'),
 
     # Authentication
     path('register/', views.register_view, name='register'),
@@ -16,14 +19,15 @@ urlpatterns = [
     path('post/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
     path('post/<int:pk>/update/', views.PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post-delete'),
-
+# Comments
+path('post/<int:pk>/comments/new/', views.CommentCreateView.as_view(), name='comment-create'),
+path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
+path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
     # Comments
     path('posts/<int:post_id>/comments/new/', views.add_comment, name='comment-create'),
     path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
 ]
-# Comments
-path('post/<int:pk>/comments/new/', views.CommentCreateView.as_view(), name='comment-create'),
-path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
-path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
+
+
 
