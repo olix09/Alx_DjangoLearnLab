@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if object %}Edit{% else %}Add{% endif %} Comment</title>
+    <link rel="stylesheet" href="{% static 'blog/css/style.css' %}">
+</head>
+<body>
+    <h1>{% if object %}Edit{% else %}Add{% endif %} Comment</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">{% if object %}Update{% else %}Submit{% endif %}</button>
+    </form>
+    <a href="{% if object %}{% url 'post-detail' object.post.pk %}{% else %}{% url 'post-detail' post.pk %}{% endif %}">Back</a>
+</body>
+</html>
