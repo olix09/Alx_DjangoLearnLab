@@ -16,3 +16,12 @@
 ## User Model
 
 Custom user with `bio`, `profile_picture`, and `followers`.
+## Likes & Notifications
+
+### Likes
+- **Like a post:** POST `/api/posts/<post_id>/like/`
+- **Unlike a post:** POST `/api/posts/<post_id>/unlike/`
+
+### Notifications
+- **View notifications:** GET `/api/notifications/`
+- Notifications include new likes, comments, and followers.
