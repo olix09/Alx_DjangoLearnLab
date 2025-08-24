@@ -9,6 +9,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'accounts',
     'posts',  # <-- added
+    'notifications',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
