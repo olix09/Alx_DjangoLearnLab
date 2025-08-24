@@ -1,41 +1,36 @@
-from rest_framework import viewsets, permissions, filters, generics
-from rest_framework.pagination import PageNumberPagination
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
-from .permissions import IsOwnerOrReadOnly
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
+from django.shortcuts import get_object_or_404
+from .models import Post, Like
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
 
-class DefaultPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('-created_at')
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = DefaultPagination
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'content']
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all().order_by('-created_at')
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = DefaultPagination
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-# --- NEW: Feed (posts by users the requester follows) ---
-class FeedView(generics.ListAPIView):
-    serializer_class = PostSerializer
+# --- Like / Unlike ---
+class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = DefaultPagination
 
-    def get_queryset(self):
-        # Uses the "following" M2M added in this step
-        following_users = self.request.user.following.all()
-        return Post.objects.filter(author__in=following_users).order_by('-created_at')
+    def post(self, request, pk, *args, **kwargs):
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(post=post, user=request.user)
+        if created:
+            # create notification for post author
+            if post.author != request.user:
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=request.user,
+                    verb='liked your post',
+                    target=post,
+                    target_content_type=ContentType.objects.get_for_model(Post),
+                    target_object_id=post.id
+                )
+            return Response({'detail': 'Post liked.'})
+        return Response({'detail': 'You already liked this post.'})
+
+class UnlikePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, *args, **kwargs):
+        post = get_object_or_404(Post, pk=pk)
+        Like.objects.filter(post=post, user=request.user).delete()
+        return Response({'detail': 'Post unliked.'})
